@@ -35,28 +35,25 @@ open class ThemeHelper: NSObject {
 }
 
 
-
 public extension NSObject {
 
-    
     var hooks: Dictionary<String, Any>? {
         set(newValue) {
             objc_setAssociatedObject(self, &hooksKey, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
-            NotificationCenter.default.addObserver(self, selector: #selector(changeTheme), name: NSNotification.Name(themeChangedIdentify), object: nil)
+            NotificationCenter.default.addObserver(self, selector: #selector(themeNeedUpdate), name: NSNotification.Name(themeChangedIdentify), object: nil)
         }
         get {
             guard let info = objc_getAssociatedObject(self, &hooksKey) as? Dictionary<String, Any> else {
                 let dic = Dictionary<String, Any>()
                 objc_setAssociatedObject(self, &hooksKey, dic, .OBJC_ASSOCIATION_COPY_NONATOMIC)
-                NotificationCenter.default.addObserver(self, selector: #selector(changeTheme), name: NSNotification.Name(themeChangedIdentify), object: nil)
-
+                NotificationCenter.default.addObserver(self, selector: #selector(themeNeedUpdate), name: NSNotification.Name(themeChangedIdentify), object: nil)
                 return dic
             }
             return info
         }
     }
 
-    @objc func changeTheme() {
+    @objc func themeNeedUpdate() {
         if let hookers = hooks {
             for sequence in hookers.enumerated() {
                 let sel = NSSelectorFromString(sequence.element.key)
